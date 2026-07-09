@@ -89,15 +89,35 @@ img {
   filter: blur(0);
 }
 
-.rooms-section.reveal.is-visible .room-card.reveal,
-.included-section.reveal.is-visible .included-card.reveal {
-  opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
-  filter: blur(0);
+.room-card.reveal {
+  transform: translate3d(0, 26px, 0) scale(0.992);
+  filter: none;
+  transition:
+    opacity 980ms var(--ease-out-quint),
+    transform 980ms var(--ease-out-quint);
+  transition-delay: calc(var(--i, 0) * 58ms);
 }
 
-.room-card.reveal {
-  transition-delay: calc(var(--i, 0) * 45ms);
+.room-card.reveal .room-image img {
+  transform: scale(1.035);
+  transition: transform 1100ms var(--ease-out-quint);
+}
+
+.room-card.reveal.is-visible .room-image img {
+  transform: scale(1);
+}
+
+.room-grid .room-card.reveal:not(:first-child) {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+  transition-delay: 0ms;
+}
+
+.room-grid .room-card.reveal:not(:first-child) .room-image img {
+  transform: none;
+  transition: none;
 }
 
 .included-card.reveal {
@@ -482,21 +502,35 @@ h3 {
 .rooms-fade-enter-active,
 .rooms-fade-leave-active {
   transition:
-    opacity 240ms var(--ease-out-quart),
-    transform 240ms var(--ease-out-quart),
-    filter 240ms var(--ease-out-quart);
+    opacity 320ms var(--ease-out-quart),
+    transform 320ms var(--ease-out-quart),
+    filter 320ms var(--ease-out-quart);
 }
 
 .rooms-fade-enter-from {
   opacity: 0;
-  transform: translateY(14px);
-  filter: blur(5px);
+  transform: translateY(18px);
+  filter: blur(6px);
 }
 
 .rooms-fade-leave-to {
   opacity: 0;
   transform: translateY(-8px);
   filter: blur(4px);
+}
+
+.rooms-fade-enter-active .room-card:first-child {
+  transition:
+    opacity 520ms var(--ease-out-quint),
+    transform 520ms var(--ease-out-quint),
+    filter 520ms var(--ease-out-quint);
+  transition-delay: 0ms;
+}
+
+.rooms-fade-enter-from .room-card:first-child {
+  opacity: 0 !important;
+  transform: translate3d(0, 28px, 0) scale(0.985) !important;
+  filter: blur(8px) !important;
 }
 
 .room-card {
@@ -579,10 +613,11 @@ h3 {
   display: flex;
   gap: 18px;
   overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: auto;
+  scroll-snap-type: none;
   scrollbar-width: none;
   padding: 4px 0 18px;
+  touch-action: pan-y;
 }
 
 .included-grid::-webkit-scrollbar {
@@ -1417,6 +1452,20 @@ h3 {
 
   to {
     opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes mobile-room-arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.985);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
     filter: blur(0);
   }
 }

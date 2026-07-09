@@ -9,6 +9,7 @@ const groups = ['Все', 'Стандарт', 'Специальные', 'Бан�
 const selectedImageIndex = ref(-1);
 const includedScroller = ref(null);
 const includedTouchStartX = ref(0);
+const includedTouchStartY = ref(0);
 
 const filteredRooms = computed(() => {
   if (activeGroup.value === 'Все') return rooms;
@@ -41,42 +42,55 @@ const scrollIncluded = (direction) => {
   const state = getIncludedScrollState();
   if (!state) return;
 
-  const { scroller, step, maxScroll, isAtEnd, isAtStart } = state;
+  const { scroller, maxScroll, isAtEnd, isAtStart } = state;
+  const cards = [...scroller.querySelectorAll('.included-card')];
+  const scrollToCard = (card) => {
+    if (!card) return;
+    scroller.scrollTo({
+      left: Math.min(Math.max(card.offsetLeft, 0), maxScroll),
+      behavior: 'smooth',
+    });
+  };
+  const currentIndex = cards.reduce((nearestIndex, card, index) => {
+    const nearestDistance = Math.abs(cards[nearestIndex].offsetLeft - scroller.scrollLeft);
+    const distance = Math.abs(card.offsetLeft - scroller.scrollLeft);
+    return distance < nearestDistance ? index : nearestIndex;
+  }, 0);
 
   if (direction > 0 && isAtEnd) {
-    scroller.scrollTo({ left: 0, behavior: 'smooth' });
+    cards[0]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
     return;
   }
 
   if (direction < 0 && isAtStart) {
-    scroller.scrollTo({ left: maxScroll, behavior: 'smooth' });
+    cards.at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
     return;
   }
 
-  scroller.scrollBy({
-    left: direction * step,
-    behavior: 'smooth',
-  });
+  const nextIndex = Math.min(Math.max(currentIndex + direction, 0), cards.length - 1);
+ cards[nextIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+};
+
+const onIncludedWheel = (event) => {
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+    event.preventDefault();
+  }
 };
 
 const onIncludedTouchStart = (event) => {
-  includedTouchStartX.value = event.changedTouches[0].clientX;
+  const touch = event.changedTouches[0];
+  includedTouchStartX.value = touch.clientX;
+  includedTouchStartY.value = touch.clientY;
 };
 
 const onIncludedTouchEnd = (event) => {
-  const state = getIncludedScrollState();
-  if (!state) return;
+  const touch = event.changedTouches[0];
+  const deltaX = touch.clientX - includedTouchStartX.value;
+  const deltaY = touch.clientY - includedTouchStartY.value;
 
-  const delta = event.changedTouches[0].clientX - includedTouchStartX.value;
-  if (Math.abs(delta) < 42) return;
+  if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
 
-  if (delta < 0 && state.isAtEnd) {
-    state.scroller.scrollTo({ left: 0, behavior: 'smooth' });
-  }
-
-  if (delta > 0 && state.isAtStart) {
-    state.scroller.scrollTo({ left: state.maxScroll, behavior: 'smooth' });
-  }
+  scrollIncluded(deltaX < 0 ? 1 : -1);
 };
 
 const openLightbox = (index) => {
@@ -131,6 +145,7 @@ const closeLightbox = () => {
         class="included-grid included-scroll"
         @touchstart.passive="onIncludedTouchStart"
         @touchend.passive="onIncludedTouchEnd"
+        @wheel="onIncludedWheel"
       >
         <article
           v-for="(item, index) in includedAmenities"

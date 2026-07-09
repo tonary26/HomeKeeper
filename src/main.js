@@ -30,6 +30,15 @@ const revealDirective = {
       element.classList.add('is-visible');
     };
 
+    const getMobileRootMargin = () => {
+      if (element.classList.contains('rooms-section')) return '0px 0px 40% 0px';
+      if (element.classList.contains('intro')) return '0px 0px -6% 0px';
+      if (element.classList.contains('included-section')) return '0px 0px -6% 0px';
+      if (element.classList.contains('room-card')) return '0px 0px -4% 0px';
+      if (element.classList.contains('included-card')) return '0px 0px 6% 0px';
+      return '0px 0px 24% 0px';
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         const alreadyPassed = entry.boundingClientRect.top < 0;
@@ -37,7 +46,10 @@ const revealDirective = {
         reveal();
         observer.unobserve(element);
       },
-      { threshold: 0.04, rootMargin: '0px 0px 12% 0px' },
+      {
+        threshold: 0.04,
+        rootMargin: window.matchMedia('(max-width: 760px)').matches ? getMobileRootMargin() : '0px 0px 12% 0px',
+      },
     );
 
     element._revealObserver = observer;
