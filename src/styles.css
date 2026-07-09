@@ -1039,6 +1039,10 @@ h3 {
   transform: translateY(-50%) scale(1.04);
 }
 
+.room-slide-indicator {
+  display: none;
+}
+
 .room-detail {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(280px, 0.7fr);
@@ -1314,31 +1318,34 @@ h3 {
   }
 
   .room-nav-arrow {
-    width: 40px;
-    height: 40px;
-    top: min(34svh, 270px);
-    bottom: auto;
-    animation: none;
-    background: rgba(73, 55, 45, 0.42);
-    transform: none;
+    display: none;
   }
 
-  .room-nav-arrow:hover {
-    transform: scale(1.03);
+  .room-slide-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 0 18px;
   }
 
-  .room-nav-arrow span,
+  .room-slide-indicator span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: rgba(255, 250, 245, 0.62);
+    transition:
+      width 260ms var(--ease-out-quart),
+      background 260ms var(--ease-out-quart);
+  }
+
+  .room-slide-indicator span.active {
+    width: 36px;
+    background: var(--soft);
+  }
+
   .related-actions button {
     font-size: 28px;
-  }
-
-  .room-nav-prev {
-    left: calc(50% - 50px);
-  }
-
-  .room-nav-next {
-    right: auto;
-    left: calc(50% + 10px);
   }
 
   .related-actions {

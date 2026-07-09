@@ -71,6 +71,14 @@ const scrollRelated = (direction) => {
         <p class="quiet-line">{{ room.group }}</p>
         <h1>{{ room.title }}</h1>
         <p>{{ room.description }}</p>
+        <div v-if="groupRooms.length > 1" class="room-slide-indicator" aria-label="Текущий номер в разделе">
+          <span
+            v-for="(item, index) in groupRooms"
+            :key="item.slug"
+            :class="{ active: index === roomIndex }"
+            aria-hidden="true"
+          ></span>
+        </div>
         <a class="gold-button booking-button" :href="phoneHref">Забронировать по номеру: {{ phone }}</a>
       </div>
     </section>
