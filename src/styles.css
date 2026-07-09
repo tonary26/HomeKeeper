@@ -106,7 +106,7 @@ img {
 
 .site-header {
   position: fixed;
-  z-index: 20;
+  z-index: 60;
   top: 0;
   left: 0;
   right: 0;
@@ -118,7 +118,15 @@ img {
   background: linear-gradient(to bottom, rgba(73, 55, 45, 0.42), rgba(73, 55, 45, 0));
 }
 
+.site-header.menu-open {
+  background: linear-gradient(to bottom, rgba(73, 55, 45, 0.72), rgba(73, 55, 45, 0.22));
+}
+
 .brand {
+  position: fixed;
+  z-index: 62;
+  top: 18px;
+  left: clamp(18px, 4vw, 54px);
   display: grid;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -135,6 +143,7 @@ img {
 }
 
 .main-nav {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: clamp(16px, 2.6vw, 34px);
@@ -145,7 +154,7 @@ img {
   position: relative;
 }
 
-.main-nav a::after {
+.main-nav a:not(.nav-phone)::after {
   content: "";
   position: absolute;
   left: 0;
@@ -158,7 +167,7 @@ img {
   transition: transform 240ms var(--ease-out-quart);
 }
 
-.main-nav a:hover::after {
+.main-nav a:not(.nav-phone):hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -178,6 +187,8 @@ img {
 }
 
 .menu-button {
+  position: relative;
+  z-index: 3;
   display: none;
   width: 46px;
   height: 46px;
@@ -1160,13 +1171,20 @@ h3 {
     padding: 14px 18px;
   }
 
+  .brand {
+    top: 14px;
+    left: 18px;
+  }
+
   .menu-button {
     display: block;
+    margin-left: auto;
   }
 
   .main-nav {
     position: fixed;
-    inset: 74px 12px auto;
+    z-index: 2;
+    inset: 82px 12px auto;
     display: grid;
     gap: 0;
     padding: 12px;
@@ -1188,7 +1206,18 @@ h3 {
     padding: 14px 10px;
   }
 
+  .main-nav a:not(.nav-phone)::after {
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+    display: block;
+    background: var(--mocha);
+    opacity: 0.42;
+    transform-origin: left;
+  }
+
   .nav-phone {
+    margin-top: 8px;
     border-color: var(--line);
   }
 
@@ -1285,21 +1314,31 @@ h3 {
   }
 
   .room-nav-arrow {
-    width: 46px;
-    height: 58px;
-    top: 48%;
+    width: 40px;
+    height: 40px;
+    top: min(34svh, 270px);
     bottom: auto;
     animation: none;
-    transform: translateY(-50%);
+    background: rgba(73, 55, 45, 0.42);
+    transform: none;
   }
 
   .room-nav-arrow:hover {
-    transform: translateY(-50%) scale(1.03);
+    transform: scale(1.03);
   }
 
   .room-nav-arrow span,
   .related-actions button {
-    font-size: 34px;
+    font-size: 28px;
+  }
+
+  .room-nav-prev {
+    left: calc(50% - 50px);
+  }
+
+  .room-nav-next {
+    right: auto;
+    left: calc(50% + 10px);
   }
 
   .related-actions {

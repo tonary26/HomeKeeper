@@ -7,7 +7,7 @@ const menuOpen = ref(false);
 </script>
 
 <template>
-  <header class="site-header">
+  <header :class="['site-header', { 'menu-open': menuOpen }]">
     <RouterLink class="brand" to="/" @click="menuOpen = false">
       <span>Гостиница</span>
       <strong>Рай</strong>

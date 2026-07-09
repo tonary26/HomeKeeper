@@ -8,6 +8,7 @@ const activeGroup = ref('Все');
 const groups = ['Все', 'Стандарт', 'Специальные', 'Бани / Сауны'];
 const selectedImageIndex = ref(-1);
 const includedScroller = ref(null);
+const includedTouchStartX = ref(0);
 
 const filteredRooms = computed(() => {
   if (activeGroup.value === 'Все') return rooms;
@@ -19,14 +20,28 @@ const priceText = (room) => {
   return `от ${room.price.toLocaleString('ru-RU')} ₽`;
 };
 
-const scrollIncluded = (direction) => {
+const getIncludedScrollState = () => {
   const scroller = includedScroller.value;
-  if (!scroller) return;
+  if (!scroller) return null;
 
   const step = Math.min(560, window.innerWidth * 0.84);
   const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-  const isAtEnd = scroller.scrollLeft >= maxScroll - 8;
-  const isAtStart = scroller.scrollLeft <= 8;
+  const scrollLeft = Math.ceil(scroller.scrollLeft);
+
+  return {
+    scroller,
+    step,
+    maxScroll,
+    isAtEnd: scrollLeft >= maxScroll - 48,
+    isAtStart: scrollLeft <= 48,
+  };
+};
+
+const scrollIncluded = (direction) => {
+  const state = getIncludedScrollState();
+  if (!state) return;
+
+  const { scroller, step, maxScroll, isAtEnd, isAtStart } = state;
 
   if (direction > 0 && isAtEnd) {
     scroller.scrollTo({ left: 0, behavior: 'smooth' });
@@ -42,6 +57,26 @@ const scrollIncluded = (direction) => {
     left: direction * step,
     behavior: 'smooth',
   });
+};
+
+const onIncludedTouchStart = (event) => {
+  includedTouchStartX.value = event.changedTouches[0].clientX;
+};
+
+const onIncludedTouchEnd = (event) => {
+  const state = getIncludedScrollState();
+  if (!state) return;
+
+  const delta = event.changedTouches[0].clientX - includedTouchStartX.value;
+  if (Math.abs(delta) < 42) return;
+
+  if (delta < 0 && state.isAtEnd) {
+    state.scroller.scrollTo({ left: 0, behavior: 'smooth' });
+  }
+
+  if (delta > 0 && state.isAtStart) {
+    state.scroller.scrollTo({ left: state.maxScroll, behavior: 'smooth' });
+  }
 };
 
 const openLightbox = (index) => {
@@ -91,7 +126,12 @@ const closeLightbox = () => {
           <button type="button" @click="scrollIncluded(1)" aria-label="Вперед">›</button>
         </div>
       </div>
-      <div ref="includedScroller" class="included-grid included-scroll">
+      <div
+        ref="includedScroller"
+        class="included-grid included-scroll"
+        @touchstart.passive="onIncludedTouchStart"
+        @touchend.passive="onIncludedTouchEnd"
+      >
         <article
           v-for="(item, index) in includedAmenities"
           :key="item.title"

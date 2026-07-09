@@ -232,8 +232,8 @@ export const rooms = [
     beds: "1 кровать",
     price: 1200,
     unit: 'за номер / сутки',
-    image: userImage('izbushka-3'),
-    gallery: [userImage('izbushka-3'), userImage('izbushka-1'), userImage('izbushka-2')],
+    image: userImage('izbushka-new-1'),
+    gallery: [userImage('izbushka-new-1'), userImage('izbushka-new-2'), userImage('izbushka-new-3')],
   },
 ];
 

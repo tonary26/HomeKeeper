@@ -37,7 +37,7 @@ const revealDirective = {
         reveal();
         observer.unobserve(element);
       },
-      { threshold: 0.12, rootMargin: '0px 0px -10% 0px' },
+      { threshold: 0.04, rootMargin: '0px 0px 12% 0px' },
     );
 
     element._revealObserver = observer;
