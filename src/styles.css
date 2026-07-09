@@ -143,10 +143,8 @@ img {
 }
 
 .brand {
-  position: fixed;
+  position: relative;
   z-index: 62;
-  top: 18px;
-  left: clamp(18px, 4vw, 54px);
   display: grid;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -1207,12 +1205,24 @@ h3 {
 
 @media (max-width: 760px) {
   .site-header {
-    padding: 14px 18px;
+    min-height: 72px;
+    padding: calc(env(safe-area-inset-top, 0px) + 12px) 18px 12px;
+    background: rgba(73, 55, 45, 0.58);
+    backdrop-filter: blur(10px);
   }
 
   .brand {
-    top: 14px;
-    left: 18px;
+    position: relative;
+    top: auto;
+    left: auto;
+  }
+
+  .brand span {
+    font-size: 11px;
+  }
+
+  .brand strong {
+    font-size: 27px;
   }
 
   .menu-button {
@@ -1292,6 +1302,14 @@ h3 {
     max-width: none;
   }
 
+  .included-section {
+    padding-top: 58px;
+  }
+
+  .included-section .section-head {
+    margin-bottom: 24px;
+  }
+
   .filters {
     justify-content: flex-start;
   }
@@ -1345,6 +1363,20 @@ h3 {
   .room-gallery-grid.photo-count-1 button,
   .room-gallery-grid.photo-count-3 button {
     aspect-ratio: 4 / 3;
+  }
+
+  .room-gallery-section {
+    padding-top: 54px;
+    padding-bottom: 46px;
+  }
+
+  .room-gallery-section .section-head {
+    margin-bottom: 24px;
+  }
+
+  .room-gallery-section h2,
+  .related-section h2 {
+    font-size: clamp(38px, 11vw, 54px);
   }
 
   .feature-list div {
