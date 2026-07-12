@@ -91,6 +91,14 @@ onBeforeUnmount(() => {
       <figcaption v-if="hasSeveralImages" class="lightbox-counter">
         {{ index + 1 }} / {{ images.length }}
       </figcaption>
+      <figcaption v-if="hasSeveralImages" class="lightbox-dashes" aria-label="Текущая фотография">
+        <span
+          v-for="(_, imageIndex) in images"
+          :key="imageIndex"
+          :class="{ active: imageIndex === index }"
+          aria-hidden="true"
+        ></span>
+      </figcaption>
     </figure>
 
     <button

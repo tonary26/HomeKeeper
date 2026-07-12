@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { address, phone, phoneHref, rooms } from '../data/rooms';
@@ -9,6 +9,8 @@ const route = useRoute();
 const router = useRouter();
 const selectedImageIndex = ref(-1);
 const relatedScroller = ref(null);
+const galleryScroller = ref(null);
+const activeGalleryIndex = ref(0);
 const touchStartX = ref(0);
 const room = computed(() => rooms.find((item) => item.slug === route.params.slug) || rooms[0]);
 const roomGallery = computed(() => room.value.gallery || [room.value.image]);
@@ -49,6 +51,23 @@ const openLightbox = (index) => {
 const closeLightbox = () => {
   selectedImageIndex.value = -1;
 };
+
+const onGalleryScroll = () => {
+  const scroller = galleryScroller.value;
+  if (!scroller) return;
+
+  const cards = [...scroller.querySelectorAll('button')];
+  activeGalleryIndex.value = cards.reduce((nearestIndex, card, index) => {
+    const nearestDistance = Math.abs(cards[nearestIndex].offsetLeft - scroller.scrollLeft);
+    const distance = Math.abs(card.offsetLeft - scroller.scrollLeft);
+    return distance < nearestDistance ? index : nearestIndex;
+  }, 0);
+};
+
+watch(() => room.value.slug, () => {
+  activeGalleryIndex.value = 0;
+  galleryScroller.value?.scrollTo({ left: 0 });
+});
 
 const scrollRelated = (direction) => {
   relatedScroller.value?.scrollBy({
@@ -122,7 +141,11 @@ const scrollRelated = (direction) => {
           <h2>Фотографии {{ room.title }}</h2>
         </div>
       </div>
-      <div :class="['room-gallery-grid', `photo-count-${roomGallery.length}`]">
+      <div
+        ref="galleryScroller"
+        :class="['room-gallery-grid', `photo-count-${roomGallery.length}`]"
+        @scroll.passive="onGalleryScroll"
+      >
         <button
           v-for="(image, index) in roomGallery"
           :key="image"
@@ -131,6 +154,14 @@ const scrollRelated = (direction) => {
         >
           <img :src="image" :alt="`${room.title}: фотография номера`" />
         </button>
+      </div>
+      <div v-if="roomGallery.length > 1" class="room-gallery-indicator" aria-label="Текущая фотография">
+        <span
+          v-for="(_, index) in roomGallery"
+          :key="index"
+          :class="{ active: index === activeGalleryIndex }"
+          aria-hidden="true"
+        ></span>
       </div>
     </section>
 

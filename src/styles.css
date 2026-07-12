@@ -998,6 +998,11 @@ h3 {
   backdrop-filter: blur(8px);
 }
 
+.lightbox-dashes,
+.room-gallery-indicator {
+  display: none;
+}
+
 .room-page {
   min-height: 100svh;
 }
@@ -1366,8 +1371,18 @@ h3 {
   .room-gallery-grid.photo-count-2,
   .room-gallery-grid.photo-count-3,
   .room-gallery-grid.photo-count-4 {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
     aspect-ratio: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+  }
+
+  .room-gallery-grid::-webkit-scrollbar {
+    display: none;
   }
 
   .room-gallery-grid.photo-count-3 {
@@ -1381,8 +1396,12 @@ h3 {
   .room-gallery-grid button,
   .room-gallery-grid.photo-count-1 button,
   .room-gallery-grid.photo-count-3 button {
+    flex: 0 0 100%;
+    width: 100%;
     aspect-ratio: 4 / 3;
     min-height: clamp(240px, 78vw, 340px);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .room-gallery-section {
@@ -1392,6 +1411,33 @@ h3 {
 
   .room-gallery-section .section-head {
     margin-bottom: 24px;
+  }
+
+  .room-gallery-indicator,
+  .lightbox-dashes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .room-gallery-indicator {
+    margin: 18px auto 0;
+  }
+
+  .room-gallery-indicator span,
+  .lightbox-dashes span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: rgba(255, 250, 245, 0.58);
+    transition: width 240ms var(--ease-out-quart), background 240ms var(--ease-out-quart);
+  }
+
+  .room-gallery-indicator span.active,
+  .lightbox-dashes span.active {
+    width: 34px;
+    background: var(--soft);
   }
 
   .room-gallery-section h2,
@@ -1440,35 +1486,34 @@ h3 {
   }
 
   .lightbox {
-    --lightbox-image-height: min(68svh, calc(100svh - 180px));
+    --lightbox-frame-width: calc(100vw - 28px);
+    --lightbox-image-height: min(72svh, calc(100svh - 150px));
 
-    padding: 70px 14px 24px;
+    padding: calc(env(safe-area-inset-top, 0px) + 72px) 14px calc(env(safe-area-inset-bottom, 0px) + 18px);
+    touch-action: none;
   }
 
   .lightbox-frame {
-    max-height: calc(100svh - 138px);
+    gap: 16px;
+    max-height: calc(100svh - 116px);
   }
 
   .lightbox-nav {
-    top: auto;
-    bottom: 18px;
-    width: 54px;
-    height: 54px;
-    font-size: 42px;
-    transform: none;
+    display: none;
   }
 
-  .lightbox-prev {
-    left: 18px;
+  .lightbox-close {
+    top: calc(env(safe-area-inset-top, 0px) + 14px);
+    right: 14px;
   }
 
-  .lightbox-next {
-    right: 18px;
+  .lightbox-counter {
+    display: none;
   }
 
-  .lightbox-prev:hover,
-  .lightbox-next:hover {
-    transform: none;
+  .lightbox img {
+    max-width: 100%;
+    max-height: var(--lightbox-image-height);
   }
 }
 
