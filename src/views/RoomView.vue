@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { address, phone, phoneHref, rooms } from '../data/rooms';
+import { bedLabel, guestLabel, isBathRoom } from '../utils/labels';
 
 const route = useRoute();
 const router = useRouter();
@@ -16,6 +17,7 @@ const roomIndex = computed(() => groupRooms.value.findIndex((item) => item.slug 
 const previousRoom = computed(() => groupRooms.value[(roomIndex.value - 1 + groupRooms.value.length) % groupRooms.value.length]);
 const nextRoom = computed(() => groupRooms.value[(roomIndex.value + 1) % groupRooms.value.length]);
 const related = computed(() => groupRooms.value.filter((item) => item.slug !== room.value.slug));
+const roomBeds = computed(() => bedLabel(room.value.beds));
 
 const priceText = computed(() => {
   if (room.value.priceLabel) return room.value.priceLabel;
@@ -96,11 +98,11 @@ const scrollRelated = (direction) => {
         </div>
         <div>
           <dt>Гостей</dt>
-          <dd>до {{ room.max }}</dd>
+          <dd>до {{ guestLabel(room.max) }}</dd>
         </div>
-        <div>
+        <div v-if="!isBathRoom(room) && roomBeds">
           <dt>Кровати</dt>
-          <dd>{{ room.beds || 'комната отдыха' }}</dd>
+          <dd>{{ roomBeds }}</dd>
         </div>
         <div>
           <dt>Включено</dt>

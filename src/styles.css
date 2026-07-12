@@ -107,19 +107,6 @@ img {
   transform: scale(1);
 }
 
-.room-grid .room-card.reveal:not(:first-child) {
-  opacity: 1;
-  transform: none;
-  filter: none;
-  transition: none;
-  transition-delay: 0ms;
-}
-
-.room-grid .room-card.reveal:not(:first-child) .room-image img {
-  transform: none;
-  transition: none;
-}
-
 .included-card.reveal {
   transition-delay: calc(var(--i, 0) * 55ms);
 }
@@ -517,15 +504,15 @@ h3 {
   filter: blur(4px);
 }
 
-.rooms-fade-enter-active .room-card:first-child {
+.rooms-fade-enter-active .room-card {
   transition:
     opacity 520ms var(--ease-out-quint),
     transform 520ms var(--ease-out-quint),
     filter 520ms var(--ease-out-quint);
-  transition-delay: 0ms;
+  transition-delay: calc(var(--i, 0) * 48ms);
 }
 
-.rooms-fade-enter-from .room-card:first-child {
+.rooms-fade-enter-from .room-card {
   opacity: 0 !important;
   transform: translate3d(0, 28px, 0) scale(0.985) !important;
   filter: blur(8px) !important;
@@ -611,11 +598,13 @@ h3 {
   display: flex;
   gap: 18px;
   overflow-x: auto;
-  overscroll-behavior-inline: auto;
-  scroll-snap-type: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
   scrollbar-width: none;
   padding: 4px 0 18px;
-  touch-action: pan-y;
+  touch-action: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .included-grid::-webkit-scrollbar {
@@ -631,6 +620,7 @@ h3 {
   background: var(--mocha);
   isolation: isolate;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .included-card:nth-child(1),
@@ -1326,6 +1316,10 @@ h3 {
     flex: 0 0 88vw;
     min-height: 360px;
     scroll-snap-align: start;
+  }
+
+  .included-grid {
+    touch-action: pan-x;
   }
 
   .included-actions {

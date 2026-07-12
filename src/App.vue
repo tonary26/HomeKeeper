@@ -1,9 +1,25 @@
 <script setup>
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { phone, phoneHref } from './data/rooms';
 
 const menuOpen = ref(false);
+const route = useRoute();
+const router = useRouter();
+
+const goToSection = async (sectionId) => {
+  menuOpen.value = false;
+
+  if (route.path !== '/') {
+    await router.push({ path: '/', hash: `#${sectionId}` });
+  } else {
+    await router.push({ hash: `#${sectionId}` });
+  }
+
+  await nextTick();
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 </script>
 
 <template>
@@ -19,9 +35,9 @@ const menuOpen = ref(false);
     </button>
 
     <nav :class="['main-nav', { open: menuOpen }]">
-      <a href="/#rooms" @click="menuOpen = false">Номера</a>
-      <a href="/#gallery" @click="menuOpen = false">Галерея</a>
-      <a href="/#contacts" @click="menuOpen = false">Контакты</a>
+      <a href="/#rooms" @click.prevent="goToSection('rooms')">Номера</a>
+      <a href="/#gallery" @click.prevent="goToSection('gallery')">Галерея</a>
+      <a href="/#contacts" @click.prevent="goToSection('contacts')">Контакты</a>
       <a class="nav-phone" :href="phoneHref">{{ phone }}</a>
     </nav>
   </header>

@@ -3,13 +3,12 @@ import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { address, email, gallery, includedAmenities, phone, phoneHref, rooms } from '../data/rooms';
+import { roomMetaLabel } from '../utils/labels';
 
 const activeGroup = ref('Все');
 const groups = ['Все', 'Стандарт', 'Специальные', 'Бани / Сауны'];
 const selectedImageIndex = ref(-1);
 const includedScroller = ref(null);
-const includedTouchStartX = ref(0);
-const includedTouchStartY = ref(0);
 
 const filteredRooms = computed(() => {
   if (activeGroup.value === 'Все') return rooms;
@@ -25,13 +24,11 @@ const getIncludedScrollState = () => {
   const scroller = includedScroller.value;
   if (!scroller) return null;
 
-  const step = Math.min(560, window.innerWidth * 0.84);
   const maxScroll = scroller.scrollWidth - scroller.clientWidth;
   const scrollLeft = Math.ceil(scroller.scrollLeft);
 
   return {
     scroller,
-    step,
     maxScroll,
     isAtEnd: scrollLeft >= maxScroll - 48,
     isAtStart: scrollLeft <= 48,
@@ -44,53 +41,38 @@ const scrollIncluded = (direction) => {
 
   const { scroller, maxScroll, isAtEnd, isAtStart } = state;
   const cards = [...scroller.querySelectorAll('.included-card')];
+  const getCardScrollLeft = (card) => card.offsetLeft - scroller.offsetLeft;
   const scrollToCard = (card) => {
     if (!card) return;
     scroller.scrollTo({
-      left: Math.min(Math.max(card.offsetLeft, 0), maxScroll),
+      left: Math.min(Math.max(getCardScrollLeft(card), 0), maxScroll),
       behavior: 'smooth',
     });
   };
   const currentIndex = cards.reduce((nearestIndex, card, index) => {
-    const nearestDistance = Math.abs(cards[nearestIndex].offsetLeft - scroller.scrollLeft);
-    const distance = Math.abs(card.offsetLeft - scroller.scrollLeft);
+    const nearestDistance = Math.abs(getCardScrollLeft(cards[nearestIndex]) - scroller.scrollLeft);
+    const distance = Math.abs(getCardScrollLeft(card) - scroller.scrollLeft);
     return distance < nearestDistance ? index : nearestIndex;
   }, 0);
 
   if (direction > 0 && isAtEnd) {
-    cards[0]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    scrollToCard(cards[0]);
     return;
   }
 
   if (direction < 0 && isAtStart) {
-    cards.at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    scrollToCard(cards.at(-1));
     return;
   }
 
   const nextIndex = Math.min(Math.max(currentIndex + direction, 0), cards.length - 1);
- cards[nextIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  scrollToCard(cards[nextIndex]);
 };
 
 const onIncludedWheel = (event) => {
   if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
     event.preventDefault();
   }
-};
-
-const onIncludedTouchStart = (event) => {
-  const touch = event.changedTouches[0];
-  includedTouchStartX.value = touch.clientX;
-  includedTouchStartY.value = touch.clientY;
-};
-
-const onIncludedTouchEnd = (event) => {
-  const touch = event.changedTouches[0];
-  const deltaX = touch.clientX - includedTouchStartX.value;
-  const deltaY = touch.clientY - includedTouchStartY.value;
-
-  if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
-
-  scrollIncluded(deltaX < 0 ? 1 : -1);
 };
 
 const openLightbox = (index) => {
@@ -143,8 +125,6 @@ const closeLightbox = () => {
       <div
         ref="includedScroller"
         class="included-grid included-scroll"
-        @touchstart.passive="onIncludedTouchStart"
-        @touchend.passive="onIncludedTouchEnd"
         @wheel="onIncludedWheel"
       >
         <article
@@ -197,7 +177,7 @@ const closeLightbox = () => {
             <div class="room-info">
               <p>{{ room.group }}</p>
               <h3>{{ room.title }}</h3>
-              <span>{{ room.max }} гостей · {{ room.beds || 'зона отдыха' }}</span>
+              <span>{{ roomMetaLabel(room) }}</span>
               <strong>{{ priceText(room) }}</strong>
               <RouterLink class="text-link" :to="`/room/${room.slug}`">Подробнее</RouterLink>
             </div>
