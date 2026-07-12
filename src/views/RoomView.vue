@@ -59,8 +59,8 @@ const scrollRelated = (direction) => {
 </script>
 
 <template>
-  <main class="room-page" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
-    <section class="room-hero">
+  <main class="room-page">
+    <section class="room-hero" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
       <img :src="room.image" :alt="room.title" />
       <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-prev" type="button" @click="goToRoom(previousRoom)" :aria-label="`Предыдущее размещение: ${previousRoom.title}`">
         <span>‹</span>

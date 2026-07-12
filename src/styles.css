@@ -1382,6 +1382,7 @@ h3 {
   .room-gallery-grid.photo-count-1 button,
   .room-gallery-grid.photo-count-3 button {
     aspect-ratio: 4 / 3;
+    min-height: clamp(240px, 78vw, 340px);
   }
 
   .room-gallery-section {
