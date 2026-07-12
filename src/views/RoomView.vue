@@ -115,7 +115,7 @@ const scrollRelated = (direction) => {
       </dl>
     </section>
 
-    <section v-reveal class="section room-gallery-section">
+    <section class="section room-gallery-section">
       <div class="section-head">
         <div>
           <p class="quiet-line">Галерея</p>

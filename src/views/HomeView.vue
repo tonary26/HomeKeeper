@@ -70,9 +70,11 @@ const scrollIncluded = (direction) => {
 };
 
 const onIncludedWheel = (event) => {
-  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
-    event.preventDefault();
-  }
+  if (window.matchMedia('(max-width: 760px)').matches) return;
+
+  // Keep the page wheel scroll intact while preventing the horizontal gallery from moving.
+  event.preventDefault();
+  window.scrollBy({ top: event.deltaY, left: 0, behavior: 'auto' });
 };
 
 const openLightbox = (index) => {

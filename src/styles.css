@@ -95,7 +95,7 @@ img {
   transition:
     opacity 980ms var(--ease-out-quint),
     transform 980ms var(--ease-out-quint);
-  transition-delay: calc(var(--i, 0) * 58ms);
+  transition-delay: 0ms;
 }
 
 .room-card.reveal .room-image img {
@@ -132,9 +132,28 @@ img {
 .brand {
   position: relative;
   z-index: 62;
-  display: grid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   line-height: 1;
   letter-spacing: 0.02em;
+}
+
+.brand img {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.brand-name {
+  display: grid;
+  gap: 2px;
+}
+
+.brand small {
+  font-size: 12px;
 }
 
 .brand span {
@@ -509,7 +528,7 @@ h3 {
     opacity 520ms var(--ease-out-quint),
     transform 520ms var(--ease-out-quint),
     filter 520ms var(--ease-out-quint);
-  transition-delay: calc(var(--i, 0) * 48ms);
+  transition-delay: 0ms;
 }
 
 .rooms-fade-enter-from .room-card {
@@ -886,7 +905,7 @@ h3 {
 
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: 100;
   display: grid;
   place-items: center;
   padding: clamp(18px, 3vw, 34px);
@@ -1209,6 +1228,12 @@ h3 {
 
   .brand span {
     font-size: 11px;
+  }
+
+  .brand img {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 
   .brand strong {
