@@ -4,10 +4,20 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 const STORAGE_KEY = 'rai-room-card-hint-seen';
 const visible = ref(false);
 const closeButton = ref(null);
+let autoCloseTimer;
+let sectionObserver;
 
 const close = () => {
+  window.clearTimeout(autoCloseTimer);
   visible.value = false;
+};
+
+const show = () => {
+  if (visible.value || sessionStorage.getItem(STORAGE_KEY) === 'true') return;
+
   sessionStorage.setItem(STORAGE_KEY, 'true');
+  visible.value = true;
+  autoCloseTimer = window.setTimeout(close, 5000);
 };
 
 const onKeydown = (event) => {
@@ -24,14 +34,28 @@ watch(visible, async (isVisible) => {
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown);
-  if (sessionStorage.getItem(STORAGE_KEY) !== 'true') {
-    requestAnimationFrame(() => {
-      visible.value = true;
-    });
-  }
+  if (sessionStorage.getItem(STORAGE_KEY) === 'true') return;
+
+  const roomsSection = document.getElementById('rooms');
+  if (!roomsSection) return;
+
+  sectionObserver = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      sectionObserver.disconnect();
+      show();
+    },
+    {
+      threshold: 0.04,
+      rootMargin: '0px 0px -28% 0px',
+    },
+  );
+  sectionObserver.observe(roomsSection);
 });
 
 onBeforeUnmount(() => {
+  window.clearTimeout(autoCloseTimer);
+  sectionObserver?.disconnect();
   window.removeEventListener('keydown', onKeydown);
   document.body.classList.remove('entry-hint-open');
 });

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import EntryHint from '../components/EntryHint.vue';
 import ImageLightbox from '../components/ImageLightbox.vue';
 import { address, email, gallery, includedAmenities, phone, phoneHref, rooms } from '../data/rooms';
 import { roomMetaLabel } from '../utils/labels';
@@ -88,6 +89,8 @@ const closeLightbox = () => {
 
 <template>
   <main>
+    <EntryHint />
+
     <section class="hero">
       <img src="/images/user/hotel-front.webp" alt="Гостиница «Рай» в Тетюшах" />
       <div class="hero-shade"></div>
