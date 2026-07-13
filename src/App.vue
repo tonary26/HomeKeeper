@@ -3,6 +3,7 @@ import { nextTick, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRoute, useRouter } from 'vue-router';
 import { phone, phoneHref } from './data/rooms';
+import EntryHint from './components/EntryHint.vue';
 
 const menuOpen = ref(false);
 const route = useRoute();
@@ -23,6 +24,8 @@ const goToSection = async (sectionId) => {
 </script>
 
 <template>
+  <EntryHint />
+
   <header :class="['site-header', { 'menu-open': menuOpen }]">
     <RouterLink class="brand" to="/" @click="menuOpen = false">
       <img src="/images/rai-logo.png" alt="Логотип гостиницы Рай" />

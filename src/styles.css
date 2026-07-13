@@ -34,6 +34,10 @@ body.lightbox-open {
   overflow: hidden;
 }
 
+body.entry-hint-open {
+  overflow: hidden;
+}
+
 body::selection {
   background: rgba(156, 122, 102, 0.22);
 }
@@ -50,6 +54,94 @@ button {
 img {
   display: block;
   max-width: 100%;
+}
+
+.entry-hint {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 6vw, 80px);
+  color: var(--soft);
+  background: rgba(73, 55, 45, 0.86);
+  cursor: pointer;
+}
+
+.entry-hint-content {
+  width: min(760px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: clamp(22px, 4vw, 42px);
+  text-align: center;
+  cursor: default;
+}
+
+.entry-hint-mark {
+  width: clamp(54px, 8vw, 86px);
+  height: 1px;
+  background: rgba(255, 250, 245, 0.72);
+  transform-origin: center;
+}
+
+.entry-hint p {
+  margin: 0;
+  max-width: 15ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 5vw, 72px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.entry-hint button {
+  min-width: 132px;
+  padding: 13px 22px;
+  border: 1px solid rgba(255, 250, 245, 0.7);
+  color: var(--soft);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 220ms var(--ease-out-quart),
+    background 220ms var(--ease-out-quart),
+    transform 220ms var(--ease-out-quart);
+}
+
+.entry-hint button:hover,
+.entry-hint button:focus-visible {
+  color: var(--ink);
+  background: var(--soft);
+  transform: scale(1.04);
+  outline: none;
+}
+
+.entry-hint-enter-active,
+.entry-hint-leave-active {
+  transition: opacity 460ms var(--ease-out-quint);
+}
+
+.entry-hint-enter-active .entry-hint-content,
+.entry-hint-leave-active .entry-hint-content {
+  transition:
+    opacity 460ms var(--ease-out-quint),
+    transform 560ms var(--ease-out-quint),
+    filter 460ms var(--ease-out-quint);
+}
+
+.entry-hint-enter-from,
+.entry-hint-leave-to,
+.entry-hint-enter-from .entry-hint-content,
+.entry-hint-leave-to .entry-hint-content {
+  opacity: 0;
+}
+
+.entry-hint-enter-from .entry-hint-content {
+  transform: translateY(20px) scale(0.985);
+  filter: blur(8px);
+}
+
+.entry-hint-leave-to .entry-hint-content {
+  transform: translateY(-10px) scale(0.99);
+  filter: blur(5px);
 }
 
 .page-enter-active,
