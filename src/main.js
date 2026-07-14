@@ -28,25 +28,41 @@ const revealDirective = {
       return;
     }
 
+    let observer;
+
     const reveal = () => {
       element.classList.add('is-visible');
     };
 
     const getMobileRootMargin = () => {
-      if (element.classList.contains('rooms-section')) return '0px 0px 40% 0px';
-      if (element.classList.contains('intro')) return '0px 0px -6% 0px';
-      if (element.classList.contains('included-section')) return '0px 0px -6% 0px';
-      if (element.classList.contains('room-card')) return '0px 0px -4% 0px';
-      if (element.classList.contains('included-card')) return '0px 0px 6% 0px';
-      return '0px 0px 24% 0px';
+      if (element.classList.contains('room-card')) return '0px 0px 4% 0px';
+      if (element.classList.contains('included-card')) return '0px 0px 2% 0px';
+      return '0px 0px 8% 0px';
     };
 
-    const observer = new IntersectionObserver(
+    const revealWhenReady = () => {
+      if (!document.body.classList.contains('entry-hint-open')) {
+        reveal();
+        return true;
+      }
+
+      if (!element._entryHintRevealHandler) {
+        element._entryHintRevealHandler = () => {
+          reveal();
+          observer?.unobserve(element);
+          delete element._entryHintRevealHandler;
+        };
+        window.addEventListener('entry-hint:closed', element._entryHintRevealHandler, { once: true });
+      }
+
+      return false;
+    };
+
+    observer = new IntersectionObserver(
       ([entry]) => {
         const alreadyPassed = entry.boundingClientRect.top < 0;
         if (!entry.isIntersecting && !alreadyPassed) return;
-        reveal();
-        observer.unobserve(element);
+        if (revealWhenReady()) observer.unobserve(element);
       },
       {
         threshold: 0.04,
@@ -64,6 +80,10 @@ const revealDirective = {
   },
   unmounted(element) {
     element._revealObserver?.disconnect();
+    if (element._entryHintRevealHandler) {
+      window.removeEventListener('entry-hint:closed', element._entryHintRevealHandler);
+      delete element._entryHintRevealHandler;
+    }
     delete element._revealObserver;
   },
 };

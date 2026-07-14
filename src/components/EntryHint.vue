@@ -7,9 +7,12 @@ const closeButton = ref(null);
 let autoCloseTimer;
 let sectionObserver;
 
-const close = () => {
+const close = async () => {
+  if (!visible.value) return;
   window.clearTimeout(autoCloseTimer);
   visible.value = false;
+  await nextTick();
+  window.dispatchEvent(new CustomEvent('entry-hint:closed'));
 };
 
 const show = () => {
