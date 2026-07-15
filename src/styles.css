@@ -1106,6 +1106,7 @@ h3 {
   align-items: end;
   overflow: hidden;
   color: var(--soft);
+  touch-action: pan-y pinch-zoom;
 }
 
 .room-hero::after {

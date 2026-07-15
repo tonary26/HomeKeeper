@@ -11,7 +11,7 @@ const selectedImageIndex = ref(-1);
 const relatedScroller = ref(null);
 const galleryScroller = ref(null);
 const activeGalleryIndex = ref(0);
-const touchStartX = ref(0);
+const roomSwipe = ref({ active: false, identifier: null, x: 0, y: 0 });
 const room = computed(() => rooms.find((item) => item.slug === route.params.slug) || rooms[0]);
 const roomGallery = computed(() => room.value.gallery || [room.value.image]);
 const groupRooms = computed(() => rooms.filter((item) => item.group === room.value.group));
@@ -33,15 +33,40 @@ const goToRoom = (target) => {
 
 const onTouchStart = (event) => {
   if (event.target.closest('.related-scroll, .room-gallery-grid, .lightbox')) return;
-  touchStartX.value = event.changedTouches[0].clientX;
+  if (event.touches.length !== 1) {
+    roomSwipe.value.active = false;
+    return;
+  }
+
+  const touch = event.changedTouches[0];
+  roomSwipe.value = {
+    active: true,
+    identifier: touch.identifier,
+    x: touch.clientX,
+    y: touch.clientY,
+  };
 };
 
 const onTouchEnd = (event) => {
+  if (!roomSwipe.value.active) return;
+  roomSwipe.value.active = false;
   if (selectedImageIndex.value >= 0) return;
   if (event.target.closest('.related-scroll, .room-gallery-grid, .lightbox')) return;
-  const delta = event.changedTouches[0].clientX - touchStartX.value;
-  if (Math.abs(delta) < 70) return;
-  goToRoom(delta < 0 ? nextRoom.value : previousRoom.value);
+
+  const touch = [...event.changedTouches].find((item) => item.identifier === roomSwipe.value.identifier);
+  if (!touch) return;
+
+  const deltaX = touch.clientX - roomSwipe.value.x;
+  const deltaY = touch.clientY - roomSwipe.value.y;
+  const horizontalDistance = Math.abs(deltaX);
+  const verticalDistance = Math.abs(deltaY);
+
+  if (horizontalDistance < 70 || horizontalDistance <= verticalDistance * 1.35) return;
+  goToRoom(deltaX < 0 ? nextRoom.value : previousRoom.value);
+};
+
+const onTouchCancel = () => {
+  roomSwipe.value.active = false;
 };
 
 const openLightbox = (index) => {
@@ -79,7 +104,12 @@ const scrollRelated = (direction) => {
 
 <template>
   <main class="room-page">
-    <section class="room-hero" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
+    <section
+      class="room-hero"
+      @touchstart.passive="onTouchStart"
+      @touchend.passive="onTouchEnd"
+      @touchcancel.passive="onTouchCancel"
+    >
       <img :src="room.image" :alt="room.title" />
       <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-prev" type="button" @click="goToRoom(previousRoom)" :aria-label="`Предыдущее размещение: ${previousRoom.title}`">
         <span>‹</span>
