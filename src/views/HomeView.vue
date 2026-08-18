@@ -7,29 +7,18 @@ import { roomMetaLabel } from '../utils/labels';
 
 const activeGroup = ref('Все');
 const groups = ['Все', 'Свободные'];
-const destination = ref('');
-const arrival = ref('');
-const departure = ref('');
-const guests = ref('2');
 const selectedImageIndex = ref(-1);
 const includedScroller = ref(null);
 const availableCount = computed(() => rooms.filter((room) => room.available).length);
 
 const filteredRooms = computed(() => {
-  const query = destination.value.trim().toLocaleLowerCase('ru');
   return rooms.filter((room) => {
     const matchesGroup = activeGroup.value === 'Все' || room.available;
-    const matchesDestination = !query || `${room.city} ${room.title} ${room.location}`.toLocaleLowerCase('ru').includes(query);
-    const matchesGuests = room.max >= Number(guests.value || 1);
-    return matchesGroup && matchesDestination && matchesGuests;
+    return matchesGroup;
   });
 });
 
 const priceText = (room) => `от ${room.price.toLocaleString('ru-RU')} ₽`;
-
-const submitSearch = () => {
-  document.getElementById('rooms')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
 
 const scrollIncluded = (direction) => {
   const scroller = includedScroller.value;
@@ -53,30 +42,7 @@ const scrollIncluded = (direction) => {
         <p class="hero-copy">Комфортное проживание в Санкт Петербурге рядом с метро Купчино.</p>
       </div>
 
-      <form class="search-panel" aria-label="Поиск размещения" @submit.prevent="submitSearch">
-        <label class="search-destination">
-          <span>Куда</span>
-          <input v-model="destination" type="search" placeholder="Город или название" autocomplete="address-level2" />
-        </label>
-        <label>
-          <span>Заезд</span>
-          <input v-model="arrival" type="date" />
-        </label>
-        <label>
-          <span>Выезд</span>
-          <input v-model="departure" type="date" />
-        </label>
-        <label>
-          <span>Гости</span>
-          <select v-model="guests">
-            <option value="1">1 гость</option>
-            <option value="2">2 гостя</option>
-            <option value="3">3 гостя</option>
-            <option value="4">4 гостя</option>
-          </select>
-        </label>
-        <button class="primary-button" type="submit">Найти</button>
-      </form>
+
     </section>
 
     <section id="rooms" v-reveal class="section rooms-section">
@@ -99,7 +65,7 @@ const scrollIncluded = (direction) => {
       </div>
 
       <Transition name="rooms-fade" mode="out-in">
-        <div v-if="filteredRooms.length" :key="`${activeGroup}-${destination}-${guests}`" class="room-grid">
+        <div v-if="filteredRooms.length" :key="activeGroup" class="room-grid">
           <article v-for="(room, index) in filteredRooms" :key="room.id" v-reveal class="room-card" :style="{ '--i': index }">
             <RouterLink :to="`/stay/${room.slug}`" class="room-image">
               <img :src="room.image" :alt="`${room.title}, ${room.city}`" loading="lazy" />

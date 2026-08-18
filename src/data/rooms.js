@@ -266,11 +266,12 @@ rooms.forEach((room, index) => {
   room.description = araratDescriptions[index % araratDescriptions.length];
   room.details = `${araratDescriptions[index % araratDescriptions.length]} Во всех апартаментах бесконтактное заселение. После подтверждения бронирования отправим понятную инструкцию для заезда.`;
   room.badge = '';
-  room.available = [0, 3, 5].includes(index);
+  room.available = [0, 3, 5, 6].includes(index);
   room.area = type.area;
   room.max = type.max;
   room.price = type.price;
-  room.image = image;
+  const customImages = { 0: '/images/homekeeper/кровать1.jpg', 1: '/images/homekeeper/кровать2.jpg', 2: '/images/homekeeper/кровать3.jpg', 3: '/images/homekeeper/кровать0.jpg', 4: '/images/homekeeper/кровать6.jpg', 5: '/images/homekeeper/кровать7.jpg', 6: '/images/homekeeper/кровать8.jpg', 7: '/images/homekeeper/кровать9.jpg' };
+  room.image = customImages[index] ?? image;
   room.gallery = gallery;
 });
 
