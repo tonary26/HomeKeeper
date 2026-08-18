@@ -146,7 +146,7 @@ export const rooms = [
   {
     id: 8, title: 'Neva Loft', slug: 'neva-loft', group: 'Квартиры', city: 'Санкт-Петербург', location: 'Васильевский остров · рядом с Невой',
     description: 'Лофт с высоким потолком и видом на город.', details: 'Пространство для пары или небольшой семьи: кухня-гостиная, отдельная спальня и быстрый Wi-Fi.',
-    max: 3, beds: 2, area: 57, rating: 4.7, reviews: 109, price: 7600, available: false, unit: 'за ночь', badge: 'Высокие потолки',
+    max: 3, beds: 2, area: 57, rating: 4.7, reviews: 109, price: 7600, available: true, unit: 'за ночь', badge: 'Высокие потолки',
     amenities: ['Wi-Fi', 'Кухня', 'Стиральная машина', 'Рабочее место'], image: stockImage('apartment-airy'), gallery: [stockImage('apartment-airy'), stockImage('bedroom-view'), stockImage('bedroom-soft')],
   },
   {
@@ -232,8 +232,8 @@ const apartmentTypes = [
   { title: 'Делюкс', area: 34, max: 2, price: 7500, images: ['/images/homekeeper/apartment-04.jpg'] },
   { title: 'Делюкс Евро', area: 35, max: 4, price: 3800, images: ['/images/homekeeper/apartment-05.jpg'] },
   { title: 'Двухкомнатный', area: 49, max: 4, price: 6500, images: ['/images/homekeeper/apartment-06.jpg'] },
-  { title: 'Студия Компакт, корпус 2', area: 18, max: 2, price: 2200, images: ['/images/homekeeper/apartment-07.jpg'] },
-  { title: 'Студия Стандарт, корпус 2', area: 24, max: 2, price: 2500, images: ['/images/homekeeper/apartment-08.jpg'] },
+  { title: 'Студия Компакт, корпус 2', area: 18, max: 2, price: 2700, images: ['/images/homekeeper/apartment-07.jpg'] },
+  { title: 'Студия Стандарт, корпус 2', area: 24, max: 2, price: 2700, images: ['/images/homekeeper/apartment-08.jpg'] },
   { title: 'Студия Комфорт, корпус 2', area: 26, max: 2, price: 2700, images: ['/images/homekeeper/apartment-09.jpg'] },
 ];
 
