@@ -251,7 +251,7 @@ const araratDescriptions = [
   'Апартаменты с современным интерьером для отдыха, работы и городских прогулок.',
 ];
 
-rooms.splice(9);
+rooms.splice(8);
 
 rooms.forEach((room, index) => {
   const type = apartmentTypes[index % apartmentTypes.length];
