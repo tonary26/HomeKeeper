@@ -270,7 +270,7 @@ rooms.forEach((room, index) => {
   room.area = type.area;
   room.max = type.max;
   room.price = type.price;
-  const customImages = { 0: '/images/homekeeper/кровать1.jpg', 1: '/images/homekeeper/кровать2.jpg', 2: '/images/homekeeper/кровать3.jpg', 3: '/images/homekeeper/кровать0.jpg', 4: '/images/homekeeper/кровать6.jpg', 5: '/images/homekeeper/кровать7.jpg', 6: '/images/homekeeper/кровать8.jpg', 7: '/images/homekeeper/кровать9.jpg' };
+  const customImages = { 0: '/images/homekeeper/кровать1.jpg', 1: '/images/homekeeper/кровать2.jpg', 2: '/images/homekeeper/кровать3.jpg', 3: '/images/homekeeper/кровать0.jpg', 4: '/images/homekeeper/кровать6.jpg', 5: '/images/homekeeper/кровать7.jpg', 6: '/images/homekeeper/кровать8.jpg', 7: '/images/homekeeper/кровать11.jpg' };
   room.image = customImages[index] ?? image;
   room.gallery = gallery;
 });
