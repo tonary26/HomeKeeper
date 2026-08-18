@@ -2,7 +2,7 @@
 import { nextTick, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRoute, useRouter } from 'vue-router';
-import { phone, phoneHref } from './data/rooms';
+import { telegramHref } from './data/rooms';
 
 const menuOpen = ref(false);
 const route = useRoute();
@@ -24,21 +24,27 @@ const goToSection = async (sectionId) => {
 
 <template>
   <header :class="['site-header', { 'menu-open': menuOpen }]">
-    <RouterLink class="brand" to="/" @click="menuOpen = false">
-      <img src="/images/rai-logo.png" alt="Логотип гостиницы Рай" />
-      <span class="brand-name"><small>Гостиница</small><strong>Рай</strong></span>
+    <RouterLink class="brand brand-text" to="/" aria-label="IN2IT, на главную" @click="menuOpen = false">
+      <span>IN2IT</span>
+      <small>апарт отель</small>
     </RouterLink>
 
-    <button class="menu-button" type="button" aria-label="Открыть меню" @click="menuOpen = !menuOpen">
+    <button
+      class="menu-button"
+      type="button"
+      :aria-label="menuOpen ? 'Закрыть меню' : 'Открыть меню'"
+      :aria-expanded="menuOpen"
+      @click="menuOpen = !menuOpen"
+    >
       <span></span>
       <span></span>
     </button>
 
     <nav :class="['main-nav', { open: menuOpen }]">
-      <a href="/#rooms" @click.prevent="goToSection('rooms')">Номера</a>
-      <a href="/#gallery" @click.prevent="goToSection('gallery')">Галерея</a>
-      <a href="/#contacts" @click.prevent="goToSection('contacts')">Контакты</a>
-      <a class="nav-phone" :href="phoneHref">{{ phone }}</a>
+      <a href="/#rooms" @click.prevent="goToSection('rooms')">Варианты</a>
+      <a href="/#collections" @click.prevent="goToSection('collections')">Подборки</a>
+      <a href="/#contacts" @click.prevent="goToSection('contacts')">Помощь</a>
+      <a class="nav-contact" :href="telegramHref" target="_blank" rel="noreferrer">Написать в Telegram</a>
     </nav>
   </header>
 

@@ -2,8 +2,8 @@
 import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import ImageLightbox from '../components/ImageLightbox.vue';
-import { address, phone, phoneHref, rooms } from '../data/rooms';
-import { bedLabel, guestLabel, isBathRoom } from '../utils/labels';
+import { rooms, telegramHref } from '../data/rooms';
+import { bedLabel, guestLabel } from '../utils/labels';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,74 +19,40 @@ const roomIndex = computed(() => groupRooms.value.findIndex((item) => item.slug 
 const previousRoom = computed(() => groupRooms.value[(roomIndex.value - 1 + groupRooms.value.length) % groupRooms.value.length]);
 const nextRoom = computed(() => groupRooms.value[(roomIndex.value + 1) % groupRooms.value.length]);
 const related = computed(() => groupRooms.value.filter((item) => item.slug !== room.value.slug));
-const roomBeds = computed(() => bedLabel(room.value.beds));
+const bookingHref = computed(() => `${telegramHref}?text=${encodeURIComponent(`Здравствуйте! Хочу уточнить доступность: ${room.value.title}`)}`);
 
-const priceText = computed(() => {
-  if (room.value.priceLabel) return room.value.priceLabel;
-  return `от ${room.value.price.toLocaleString('ru-RU')} ₽ ${room.value.unit}`;
-});
+const priceText = computed(() => `${room.value.price.toLocaleString('ru-RU')} ₽ / ночь`);
 
 const goToRoom = (target) => {
   selectedImageIndex.value = -1;
-  router.push(`/room/${target.slug}`);
+  router.push(`/stay/${target.slug}`);
 };
 
 const onTouchStart = (event) => {
   if (event.target.closest('.related-scroll, .room-gallery-grid, .lightbox')) return;
-  if (event.touches.length !== 1) {
-    roomSwipe.value.active = false;
-    return;
-  }
-
+  if (event.touches.length !== 1) return;
   const touch = event.changedTouches[0];
-  roomSwipe.value = {
-    active: true,
-    identifier: touch.identifier,
-    x: touch.clientX,
-    y: touch.clientY,
-  };
+  roomSwipe.value = { active: true, identifier: touch.identifier, x: touch.clientX, y: touch.clientY };
 };
 
 const onTouchEnd = (event) => {
   if (!roomSwipe.value.active) return;
   roomSwipe.value.active = false;
-  if (selectedImageIndex.value >= 0) return;
-  if (event.target.closest('.related-scroll, .room-gallery-grid, .lightbox')) return;
-
   const touch = [...event.changedTouches].find((item) => item.identifier === roomSwipe.value.identifier);
-  if (!touch) return;
-
+  if (!touch || selectedImageIndex.value >= 0) return;
   const deltaX = touch.clientX - roomSwipe.value.x;
   const deltaY = touch.clientY - roomSwipe.value.y;
-  const horizontalDistance = Math.abs(deltaX);
-  const verticalDistance = Math.abs(deltaY);
-
-  if (horizontalDistance < 70 || horizontalDistance <= verticalDistance * 1.35) return;
+  if (Math.abs(deltaX) < 70 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.35) return;
   goToRoom(deltaX < 0 ? nextRoom.value : previousRoom.value);
-};
-
-const onTouchCancel = () => {
-  roomSwipe.value.active = false;
-};
-
-const openLightbox = (index) => {
-  selectedImageIndex.value = index;
-};
-
-const closeLightbox = () => {
-  selectedImageIndex.value = -1;
 };
 
 const onGalleryScroll = () => {
   const scroller = galleryScroller.value;
   if (!scroller) return;
-
   const cards = [...scroller.querySelectorAll('button')];
-  activeGalleryIndex.value = cards.reduce((nearestIndex, card, index) => {
-    const nearestDistance = Math.abs(cards[nearestIndex].offsetLeft - scroller.scrollLeft);
-    const distance = Math.abs(card.offsetLeft - scroller.scrollLeft);
-    return distance < nearestDistance ? index : nearestIndex;
-  }, 0);
+  activeGalleryIndex.value = cards.reduce((nearest, card, index) => (
+    Math.abs(card.offsetLeft - scroller.scrollLeft) < Math.abs(cards[nearest].offsetLeft - scroller.scrollLeft) ? index : nearest
+  ), 0);
 };
 
 watch(() => room.value.slug, () => {
@@ -94,132 +60,71 @@ watch(() => room.value.slug, () => {
   galleryScroller.value?.scrollTo({ left: 0 });
 });
 
-const scrollRelated = (direction) => {
-  relatedScroller.value?.scrollBy({
-    left: direction * Math.min(520, window.innerWidth * 0.82),
-    behavior: 'smooth',
-  });
-};
+const scrollRelated = (direction) => relatedScroller.value?.scrollBy({ left: direction * Math.min(520, window.innerWidth * 0.82), behavior: 'smooth' });
 </script>
 
 <template>
   <main class="room-page">
-    <section
-      class="room-hero"
-      @touchstart.passive="onTouchStart"
-      @touchend.passive="onTouchEnd"
-      @touchcancel.passive="onTouchCancel"
-    >
-      <img :src="room.image" :alt="room.title" />
-      <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-prev" type="button" @click="goToRoom(previousRoom)" :aria-label="`Предыдущее размещение: ${previousRoom.title}`">
-        <span>‹</span>
-      </button>
-      <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-next" type="button" @click="goToRoom(nextRoom)" :aria-label="`Следующее размещение: ${nextRoom.title}`">
-        <span>›</span>
-      </button>
+    <section class="room-hero" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
+      <img :src="room.image" :alt="`${room.title}, ${room.city}`" />
+      <div class="hero-shade"></div>
+      <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-prev" type="button" @click="goToRoom(previousRoom)" :aria-label="`Предыдущий объект: ${previousRoom.title}`">‹</button>
+      <button v-if="groupRooms.length > 1" class="room-nav-arrow room-nav-next" type="button" @click="goToRoom(nextRoom)" :aria-label="`Следующий объект: ${nextRoom.title}`">›</button>
       <div class="room-hero-copy">
-        <RouterLink class="back-link" to="/">← Все номера</RouterLink>
-        <p class="quiet-line">{{ room.group }}</p>
+        <RouterLink class="back-link" to="/#rooms">← Все варианты</RouterLink>
         <h1>{{ room.title }}</h1>
-        <p>{{ room.description }}</p>
-        <div v-if="groupRooms.length > 1" class="room-slide-indicator" aria-label="Текущий номер в разделе">
-          <span
-            v-for="(item, index) in groupRooms"
-            :key="item.slug"
-            :class="{ active: index === roomIndex }"
-            aria-hidden="true"
-          ></span>
-        </div>
-        <a class="gold-button booking-button" :href="phoneHref">Забронировать по номеру: {{ phone }}</a>
+        <a class="primary-button" :href="bookingHref" target="_blank" rel="noreferrer">Проверить доступность</a>
       </div>
     </section>
 
     <section v-reveal class="section room-detail">
       <div class="room-description">
-        <p class="quiet-line">Описание</p>
-        <h2>Что важно знать перед звонком</h2>
+        <h2>Все важное до бронирования</h2>
         <p>{{ room.details }}</p>
+        <ul class="amenity-list" aria-label="Удобства">
+          <li v-for="amenity in room.amenities" :key="amenity">{{ amenity }}</li>
+        </ul>
       </div>
-      <dl class="feature-list">
-        <div>
-          <dt>Стоимость</dt>
-          <dd>{{ priceText }}</dd>
-        </div>
-        <div>
-          <dt>Гостей</dt>
-          <dd>до {{ guestLabel(room.max) }}</dd>
-        </div>
-        <div v-if="!isBathRoom(room) && roomBeds">
-          <dt>Кровати</dt>
-          <dd>{{ roomBeds }}</dd>
-        </div>
-        <div>
-          <dt>Включено</dt>
-          <dd>Wi-Fi, чай, кофе</dd>
-        </div>
-        <div>
-          <dt>Адрес</dt>
-          <dd>{{ address }}</dd>
-        </div>
-      </dl>
+      <aside class="booking-summary">
+        <p><strong>{{ priceText }}</strong><span>Итоговая цена зависит от дат и числа гостей.</span></p>
+        <dl class="feature-list">
+          <div><dt>Формат</dt><dd>{{ room.group }}</dd></div>
+          <div><dt>Вместимость</dt><dd>{{ guestLabel(room.max) }}</dd></div>
+          <div><dt>Площадь</dt><dd>{{ room.area }} м²</dd></div>
+          <div><dt>Спальные места</dt><dd>{{ bedLabel(room.beds) }}</dd></div>
+        </dl>
+        <a class="primary-button" :href="bookingHref" target="_blank" rel="noreferrer">Оставить запрос</a>
+      </aside>
     </section>
 
     <section class="section room-gallery-section">
-      <div class="section-head">
-        <div>
-          <p class="quiet-line">Галерея</p>
-          <h2>Фотографии {{ room.title }}</h2>
-        </div>
-      </div>
-      <div
-        ref="galleryScroller"
-        :class="['room-gallery-grid', `photo-count-${roomGallery.length}`]"
-        @scroll.passive="onGalleryScroll"
-      >
-        <button
-          v-for="(image, index) in roomGallery"
-          :key="image"
-          type="button"
-          @click="openLightbox(index)"
-        >
-          <img :src="image" :alt="`${room.title}: фотография номера`" />
+      <div class="section-head"><div><h2>{{ room.title }} внутри</h2></div></div>
+      <div ref="galleryScroller" :class="['room-gallery-grid', `photo-count-${roomGallery.length}`]" @scroll.passive="onGalleryScroll">
+        <button v-for="(image, index) in roomGallery" :key="image" type="button" @click="selectedImageIndex = index">
+          <img :src="image" :alt="`${room.title}: фотография ${index + 1}`" loading="lazy" />
         </button>
       </div>
       <div v-if="roomGallery.length > 1" class="room-gallery-indicator" aria-label="Текущая фотография">
-        <span
-          v-for="(_, index) in roomGallery"
-          :key="index"
-          :class="{ active: index === activeGalleryIndex }"
-          aria-hidden="true"
-        ></span>
+        <span v-for="(_, index) in roomGallery" :key="index" :class="{ active: index === activeGalleryIndex }" aria-hidden="true"></span>
       </div>
     </section>
 
     <section v-reveal class="section related-section">
       <div class="section-head">
-        <div>
-          <p class="quiet-line">Еще варианты</p>
-          <h2>Еще из раздела «{{ room.group }}»</h2>
-        </div>
-        <div v-if="related.length > 1" class="related-actions" aria-label="Перемещение по другим размещениям">
+        <div><h2>Другие {{ room.group.toLocaleLowerCase('ru') }}</h2></div>
+        <div v-if="related.length > 1" class="related-actions" aria-label="Другие варианты размещения">
           <button type="button" @click="scrollRelated(-1)" aria-label="Назад">‹</button>
           <button type="button" @click="scrollRelated(1)" aria-label="Вперед">›</button>
         </div>
       </div>
       <div ref="relatedScroller" class="related-grid related-scroll">
-        <RouterLink v-for="item in related" :key="item.id" :to="`/room/${item.slug}`">
+        <RouterLink v-for="item in related" :key="item.id" :to="`/stay/${item.slug}`">
           <img :src="item.image" :alt="item.title" loading="lazy" />
-          <span>{{ item.title }}</span>
+          <span><strong>{{ item.title }}</strong><small>{{ item.city }} · от {{ item.price.toLocaleString('ru-RU') }} ₽</small></span>
         </RouterLink>
       </div>
     </section>
 
-    <ImageLightbox
-      :images="roomGallery"
-      :index="selectedImageIndex"
-      :alt="`${room.title}: увеличенная фотография`"
-      @update:index="selectedImageIndex = $event"
-      @close="closeLightbox"
-    />
+    <ImageLightbox :images="roomGallery" :index="selectedImageIndex" :alt="`${room.title}: увеличенная фотография`" @update:index="selectedImageIndex = $event" @close="selectedImageIndex = -1" />
   </main>
 </template>

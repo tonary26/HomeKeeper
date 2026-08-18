@@ -14,7 +14,7 @@ const router = createRouter({
   },
   routes: [
     { path: '/', name: 'home', component: HomeView },
-    { path: '/room/:slug', name: 'room', component: RoomView },
+    { path: '/stay/:slug', name: 'stay', component: RoomView },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

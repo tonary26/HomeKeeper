@@ -1,160 +1,91 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import EntryHint from '../components/EntryHint.vue';
 import ImageLightbox from '../components/ImageLightbox.vue';
-import { address, email, gallery, includedAmenities, phone, phoneHref, rooms } from '../data/rooms';
+import { address, gallery, includedAmenities, rooms, telegram, telegramHref } from '../data/rooms';
 import { roomMetaLabel } from '../utils/labels';
 
 const activeGroup = ref('Все');
-const groups = ['Все', 'Стандарт', 'Специальные', 'Бани / Сауны'];
+const groups = ['Все', 'Свободные'];
+const destination = ref('');
+const arrival = ref('');
+const departure = ref('');
+const guests = ref('2');
 const selectedImageIndex = ref(-1);
 const includedScroller = ref(null);
+const availableCount = computed(() => rooms.filter((room) => room.available).length);
 
 const filteredRooms = computed(() => {
-  if (activeGroup.value === 'Все') return rooms;
-  return rooms.filter((room) => room.group === activeGroup.value);
+  const query = destination.value.trim().toLocaleLowerCase('ru');
+  return rooms.filter((room) => {
+    const matchesGroup = activeGroup.value === 'Все' || room.available;
+    const matchesDestination = !query || `${room.city} ${room.title} ${room.location}`.toLocaleLowerCase('ru').includes(query);
+    const matchesGuests = room.max >= Number(guests.value || 1);
+    return matchesGroup && matchesDestination && matchesGuests;
+  });
 });
 
-const priceText = (room) => {
-  if (room.priceLabel) return room.priceLabel;
-  return `от ${room.price.toLocaleString('ru-RU')} ₽`;
-};
+const priceText = (room) => `от ${room.price.toLocaleString('ru-RU')} ₽`;
 
-const getIncludedScrollState = () => {
-  const scroller = includedScroller.value;
-  if (!scroller) return null;
-
-  const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-  const scrollLeft = Math.ceil(scroller.scrollLeft);
-
-  return {
-    scroller,
-    maxScroll,
-    isAtEnd: scrollLeft >= maxScroll - 48,
-    isAtStart: scrollLeft <= 48,
-  };
+const submitSearch = () => {
+  document.getElementById('rooms')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 const scrollIncluded = (direction) => {
-  const state = getIncludedScrollState();
-  if (!state) return;
-
-  const { scroller, maxScroll, isAtEnd, isAtStart } = state;
-  const cards = [...scroller.querySelectorAll('.included-card')];
-  const getCardScrollLeft = (card) => card.offsetLeft - scroller.offsetLeft;
-  const scrollToCard = (card) => {
-    if (!card) return;
-    scroller.scrollTo({
-      left: Math.min(Math.max(getCardScrollLeft(card), 0), maxScroll),
-      behavior: 'smooth',
-    });
-  };
-  const currentIndex = cards.reduce((nearestIndex, card, index) => {
-    const nearestDistance = Math.abs(getCardScrollLeft(cards[nearestIndex]) - scroller.scrollLeft);
-    const distance = Math.abs(getCardScrollLeft(card) - scroller.scrollLeft);
-    return distance < nearestDistance ? index : nearestIndex;
-  }, 0);
-
-  if (direction > 0 && isAtEnd) {
-    scrollToCard(cards[0]);
-    return;
-  }
-
-  if (direction < 0 && isAtStart) {
-    scrollToCard(cards.at(-1));
-    return;
-  }
-
-  const nextIndex = Math.min(Math.max(currentIndex + direction, 0), cards.length - 1);
-  scrollToCard(cards[nextIndex]);
-};
-
-const onIncludedWheel = (event) => {
-  if (window.matchMedia('(max-width: 760px)').matches) return;
-
-  // Keep the page wheel scroll intact while preventing the horizontal gallery from moving.
-  event.preventDefault();
-  window.scrollBy({ top: event.deltaY, left: 0, behavior: 'auto' });
-};
-
-const openLightbox = (index) => {
-  selectedImageIndex.value = index;
-};
-
-const closeLightbox = () => {
-  selectedImageIndex.value = -1;
+  const scroller = includedScroller.value;
+  if (!scroller) return;
+  const distance = Math.min(560, window.innerWidth * 0.84);
+  const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 32;
+  const atStart = scroller.scrollLeft <= 32;
+  if (direction > 0 && atEnd) scroller.scrollTo({ left: 0, behavior: 'smooth' });
+  else if (direction < 0 && atStart) scroller.scrollTo({ left: scroller.scrollWidth, behavior: 'smooth' });
+  else scroller.scrollBy({ left: distance * direction, behavior: 'smooth' });
 };
 </script>
 
 <template>
   <main>
-    <EntryHint />
-
     <section class="hero">
-      <img src="/images/user/hotel-front.webp" alt="Гостиница «Рай» в Тетюшах" />
+      <img src="https://in2it.ru/img/rooms/studio_comfort/01.jpg" alt="Апартаменты в апарт отеле IN2IT" />
       <div class="hero-shade"></div>
       <div class="hero-content">
-        <p class="quiet-line">Тетюши, берег Волги</p>
-        <h1>Гостиница «Рай»</h1>
-        <p class="hero-copy">Спокойное размещение, номера для одного гостя, семей и рабочих бригад, банные комплексы и прямой звонок владельцу.</p>
-        <a class="gold-button booking-button" :href="phoneHref">Забронировать по номеру: {{ phone }}</a>
+        <h1>Апартаменты в Санкт Петербурге</h1>
+        <p class="hero-copy">Комфортное проживание в Санкт Петербурге рядом с метро Купчино.</p>
       </div>
-      <div class="hero-contact">
-        <a :href="phoneHref">{{ phone }}</a>
-      </div>
-    </section>
 
-    <section v-reveal class="intro section">
-      <div>
-        <p class="quiet-line">О гостинице</p>
-        <h2>Без лишнего шума: выбрать номер, открыть детали, позвонить.</h2>
-      </div>
-      <p>
-       На сайте собраны актуальные варианты размещения гостиницы «Рай»: стандартные номера, групповые номера и банные комплексы. Бронирование не уводит в сложную форму: звоните и договаривайтесь по номеру в правом верхнем углу.
-      </p>
-    </section>
-
-    <section id="included" v-reveal class="section included-section">
-      <div class="section-head">
-        <div>
-          <p class="quiet-line">Входит в отдых</p>
-          <h2>Что доступно гостям на территории</h2>
-        </div>
-        <p class="section-note">Банные зоны, бильярдная, бассейн и места для отдыха собраны рядом с размещением, чтобы гостю не приходилось искать досуг отдельно.</p>
-        <div class="included-actions" aria-label="Перемещение по доступным зонам">
-          <button type="button" @click="scrollIncluded(-1)" aria-label="Назад">‹</button>
-          <button type="button" @click="scrollIncluded(1)" aria-label="Вперед">›</button>
-        </div>
-      </div>
-      <div
-        ref="includedScroller"
-        class="included-grid included-scroll"
-        @wheel="onIncludedWheel"
-      >
-        <article
-          v-for="(item, index) in includedAmenities"
-          :key="item.title"
-          v-reveal
-          class="included-card"
-          :style="{ '--i': Math.min(index, 7) }"
-        >
-          <img :src="item.image" :alt="item.title" loading="lazy" />
-          <div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.text }}</p>
-          </div>
-        </article>
-      </div>
+      <form class="search-panel" aria-label="Поиск размещения" @submit.prevent="submitSearch">
+        <label class="search-destination">
+          <span>Куда</span>
+          <input v-model="destination" type="search" placeholder="Город или название" autocomplete="address-level2" />
+        </label>
+        <label>
+          <span>Заезд</span>
+          <input v-model="arrival" type="date" />
+        </label>
+        <label>
+          <span>Выезд</span>
+          <input v-model="departure" type="date" />
+        </label>
+        <label>
+          <span>Гости</span>
+          <select v-model="guests">
+            <option value="1">1 гость</option>
+            <option value="2">2 гостя</option>
+            <option value="3">3 гостя</option>
+            <option value="4">4 гостя</option>
+          </select>
+        </label>
+        <button class="primary-button" type="submit">Найти</button>
+      </form>
     </section>
 
     <section id="rooms" v-reveal class="section rooms-section">
       <div class="section-head">
         <div>
-          <p class="quiet-line">Каталог</p>
-          <h2>Номера и банные комплексы</h2>
+          <h2>Выберите апартаменты</h2>
+          <p class="catalog-count">{{ rooms.length }} вариантов · сейчас свободно {{ availableCount }}</p>
         </div>
-        <div class="filters" aria-label="Фильтр размещений">
+        <div class="filters" aria-label="Тип размещения">
           <button
             v-for="group in groups"
             :key="group"
@@ -168,75 +99,83 @@ const closeLightbox = () => {
       </div>
 
       <Transition name="rooms-fade" mode="out-in">
-        <div :key="activeGroup" class="room-grid">
-          <article
-            v-for="(room, index) in filteredRooms"
-            :key="room.id"
-            v-reveal
-            class="room-card"
-            :style="{ '--i': Math.min(index, 8) }"
-          >
-            <RouterLink :to="`/room/${room.slug}`" class="room-image">
-              <img :src="room.image" :alt="room.title" />
+        <div v-if="filteredRooms.length" :key="`${activeGroup}-${destination}-${guests}`" class="room-grid">
+          <article v-for="(room, index) in filteredRooms" :key="room.id" v-reveal class="room-card" :style="{ '--i': index }">
+            <RouterLink :to="`/stay/${room.slug}`" class="room-image">
+              <img :src="room.image" :alt="`${room.title}, ${room.city}`" loading="lazy" />
+              <span v-if="room.badge" class="property-badge">{{ room.badge }}</span>
+              <span v-if="room.available" class="availability-badge">Свободно</span>
             </RouterLink>
             <div class="room-info">
-              <p>{{ room.group }}</p>
+              <div class="property-line">
+                <p>{{ room.group }} · {{ room.location }}</p>
+                <span class="rating" :aria-label="`Рейтинг ${room.rating}`">★ {{ room.rating }}</span>
+              </div>
               <h3>{{ room.title }}</h3>
               <span>{{ roomMetaLabel(room) }}</span>
-              <strong>{{ priceText(room) }}</strong>
-              <RouterLink class="text-link" :to="`/room/${room.slug}`">Подробнее</RouterLink>
+              <div class="price-line">
+                <strong>{{ priceText(room) }} <small>/ ночь</small></strong>
+                <RouterLink class="text-link" :to="`/stay/${room.slug}`">Смотреть</RouterLink>
+              </div>
             </div>
           </article>
+        </div>
+        <div v-else class="empty-state" role="status">
+          <h3>Подходящих вариантов пока нет</h3>
+          <p>Попробуйте другой город, тип размещения или меньшее число гостей.</p>
+          <button type="button" @click="destination = ''; guests = '2'; activeGroup = 'Все'">Сбросить поиск</button>
         </div>
       </Transition>
     </section>
 
-    <section id="gallery" v-reveal class="section gallery-section">
-      <div class="section-head">
+    <section id="collections" v-reveal class="included-section">
+      <div class="section-head section">
         <div>
-          <p class="quiet-line">Галерея</p>
-          <h2>Фотографии отеля внутри и снаружи</h2>
+          <h2>Все необходимое для проживания</h2>
+        </div>
+        <div class="included-actions" aria-label="Перемещение по подборкам">
+          <button type="button" @click="scrollIncluded(-1)" aria-label="Назад">‹</button>
+          <button type="button" @click="scrollIncluded(1)" aria-label="Вперед">›</button>
         </div>
       </div>
+      <div ref="includedScroller" class="included-grid section">
+        <article v-for="item in includedAmenities" :key="item.title" class="included-card">
+          <img :src="item.image" :alt="item.title" loading="lazy" />
+          <div><h3>{{ item.title }}</h3><p>{{ item.text }}</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="gallery" v-reveal class="section gallery-section">
+      <div class="section-head">
+        <div><h2>Интерьеры апартаментов</h2></div>
+      </div>
       <div class="gallery-grid">
-        <button v-for="(image, index) in gallery" :key="image" type="button" @click="openLightbox(index)">
-          <img :src="image" alt="Фотография гостиницы «Рай»" />
+        <button v-for="(image, index) in gallery" :key="image" type="button" @click="selectedImageIndex = index">
+          <img :src="image" alt="Интерьер апартаментов" loading="lazy" />
         </button>
       </div>
     </section>
 
-    <section id="contacts" v-reveal class="section contacts">
-      <div>
-        <p class="quiet-line">Контакты</p>
-        <h2>Позвоните и уточните свободный номер.</h2>
+    <section id="contacts" v-reveal class="contact-section">
+      <div class="section contact-layout">
+        <div>
+          <h2>Поможем выбрать апартаменты и подтвердить бронирование.</h2>
+        </div>
+        <div class="contact-panel">
+          <p>{{ address }}. Напишите даты и число гостей, чтобы мы подтвердили доступность.</p>
+          <a class="primary-button" :href="telegramHref" target="_blank" rel="noreferrer">Написать в Telegram</a>
+          <span>{{ telegram }}</span>
+        </div>
       </div>
-      <div class="contact-panel">
-        <a :href="phoneHref">{{ phone }}</a>
-        <a :href="`mailto:${email}`">{{ email }}</a>
-        <span>{{ address }}</span>
-        <a class="gold-button" href="https://yandex.ru/maps/?text=Тетюши, Чернышевского, 48" target="_blank" rel="noreferrer">Построить маршрут</a>
-      </div>
-    </section>
-
-    <section id="map" v-reveal class="map-reveal">
-      <div class="map-copy">
-        <p class="quiet-line">Как добраться</p>
-        <h2>Гостиница «Рай» на карте</h2>
-        <a class="gold-button" href="https://yandex.ru/maps/?text=Тетюши, Чернышевского, 48" target="_blank" rel="noreferrer">Открыть в Яндекс.Картах</a>
-      </div>
-      <iframe
-        title="Гостиница Рай на Яндекс Картах"
-        src="https://yandex.ru/map-widget/v1/?text=Тетюши%2C%20Чернышевского%2C%2048&z=16"
-        loading="lazy"
-      ></iframe>
     </section>
 
     <ImageLightbox
       :images="gallery"
       :index="selectedImageIndex"
-      alt="Увеличенная фотография гостиницы"
+      alt="Увеличенная фотография апартаментов"
       @update:index="selectedImageIndex = $event"
-      @close="closeLightbox"
+      @close="selectedImageIndex = -1"
     />
   </main>
 </template>

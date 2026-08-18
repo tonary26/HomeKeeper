@@ -6,6 +6,6 @@ if not exist node_modules (
   call npm install
 )
 
-start "Hotel Rai dev server" cmd /k "npm run dev -- --host 127.0.0.1 --port 5187 --strictPort"
+start "HomeKeeper dev server" cmd /k "npm run dev -- --host 127.0.0.1 --port 5187 --strictPort"
 timeout /t 3 >nul
 start http://127.0.0.1:5187/
