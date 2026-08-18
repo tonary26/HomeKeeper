@@ -20,7 +20,7 @@ export const rooms = [
     rating: 4.9,
     reviews: 128,
     price: 6400,
-    available: false,
+    available: true,
     unit: 'за ночь',
     badge: 'Выбор гостей',
     amenities: ['Wi-Fi', 'Кухня', 'Кондиционер', 'Стиральная машина'],
