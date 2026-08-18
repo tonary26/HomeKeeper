@@ -276,13 +276,17 @@ rooms.forEach((room, index) => {
 });
 
 export const includedAmenities = [
-  { title: 'Кухня в каждом номере', text: 'Можно приготовить завтрак, перекусить после дороги и жить в привычном ритме.', image: in2itImages[0] },
-  { title: 'Бесконтактное заселение', text: 'Во всех апартаментах заселение проходит без ожидания на стойке.', image: in2itImages[1] },
-  { title: 'Рядом с метро', text: 'До станции Купчино можно дойти за несколько минут.', image: in2itImages[0] },
-  { title: 'Для коротких и долгих поездок', text: 'Подойдет для отдыха, командировки и проживания на несколько недель.', image: in2itImages[1] },
+  { title: 'Кухня в каждом номере', text: 'Можно приготовить завтрак, перекусить после дороги и жить в привычном ритме.', image: '/images/homekeeper/room-gallery-05.jpg' },
+  { title: 'Бесконтактное заселение', text: 'Во всех апартаментах заселение проходит без ожидания на стойке.', image: '/images/homekeeper/bedroom-curved.webp' },
+  { title: 'Рядом с метро', text: 'До станции Купчино можно дойти за несколько минут.', image: '/images/homekeeper/room-gallery-18.jpg' },
+  { title: 'Для коротких и долгих поездок', text: 'Подойдет для отдыха, командировки и проживания на несколько недель.', image: '/images/homekeeper/bedroom-view.webp' },
 ];
 
 export const gallery = [
-  in2itImages[0], in2itImages[1], in2itImages[0],
-  in2itImages[1], in2itImages[0], in2itImages[1],
+  '/images/homekeeper/room-gallery-03.jpg',
+  '/images/homekeeper/room-gallery-11.jpg',
+  '/images/homekeeper/room-gallery-22.jpg',
+  '/images/homekeeper/room-gallery-35.jpg',
+  '/images/homekeeper/room-gallery-47.jpg',
+  '/images/homekeeper/room-gallery-58.jpg',
 ];
