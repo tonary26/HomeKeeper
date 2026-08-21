@@ -10,6 +10,7 @@
     "fetch:images": "node scripts/fetch-images.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "vite": "^6.3.5",
     "vue": "^3.5.22",

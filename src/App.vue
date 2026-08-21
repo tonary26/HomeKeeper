@@ -3,6 +3,7 @@ import { nextTick, ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRoute, useRouter } from 'vue-router';
 import { telegramHref } from './data/rooms';
+import { Analytics } from '@vercel/analytics/vue';
 
 const menuOpen = ref(false);
 const route = useRoute();
@@ -53,4 +54,6 @@ const goToSection = async (sectionId) => {
       <component :is="Component" :key="route.fullPath" />
     </Transition>
   </RouterView>
+
+  <Analytics />
 </template>
